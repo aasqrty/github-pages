@@ -1,0 +1,149 @@
+#ifndef REKURSIF_H
+#define REKURSIF_H
+
+#include <iostream>
+#include <string>
+
+const int nMAX = 100; // Maksimal jumlah laptop
+
+struct Laptop {
+    std::string merk;
+    std::string tipe;
+    std::string harga;
+};
+
+struct Toko {
+    std::string nama;
+    Laptop daftarLaptop[nMAX];
+    int jumlahLaptop;
+};
+
+// Deklarasi fungsi
+void createLaptopRekursif(Toko &T, const std::string &merk, const std::string &tipe, const std::string &harga, int index = 0);
+void bandingHargaRekursif(Toko &T, const std::string &merk, int index = 0, int count = 0);
+void showLaptopRekursif(const Toko &T, int index = 0);
+void deleteLaptopRekursif(Toko &T, const std::string &merk, const std::string &tipe, int index = 0);
+
+#endif // REKURSIF_H
+#include <iostream>
+#include "rekursif.h"
+
+using namespace std;
+
+void createLaptopRekursif(Toko &T, const string &merk, const string &tipe, const string &harga, int index) {
+    if (index == T.jumlahLaptop) {
+        if (T.jumlahLaptop >= nMAX) {
+            cout << "Jumlah laptop di toko sudah penuh. Tidak bisa menambahkan lagi.\n";
+            return;
+        }
+        T.daftarLaptop[T.jumlahLaptop++] = {merk, tipe, harga};
+        cout << "Laptop " << merk << " " << tipe << " berhasil ditambahkan.\n";
+        return;
+    }
+
+    if (T.daftarLaptop[index].merk == merk && T.daftarLaptop[index].tipe == tipe) {
+        cout << "Laptop dengan merk " << merk << " dan tipe " << tipe << " sudah ada di toko.\n";
+        return;
+    }
+
+    createLaptopRekursif(T, merk, tipe, harga, index + 1);
+}
+
+void bandingHargaRekursif(Toko &T, const string &merk, int index, int count) {
+    if (index == T.jumlahLaptop) {
+        if (count > 1) {
+            cout << "Laptop dengan merk " << merk << " memiliki " << count << " varian harga di toko " << T.nama << ".\n";
+        } else if (count == 0) {
+            cout << "Laptop dengan merk " << merk << " tidak ditemukan di toko " << T.nama << ".\n";
+        }
+        return;
+    }
+
+    if (T.daftarLaptop[index].merk == merk) {
+        cout << "Tipe: " << T.daftarLaptop[index].tipe
+             << ", Harga: Rp " << T.daftarLaptop[index].harga << "\n";
+        count++;
+    }
+
+    bandingHargaRekursif(T, merk, index + 1, count);
+}
+
+void showLaptopRekursif(const Toko &T, int index) {
+    if (index == T.jumlahLaptop) {
+        return;
+    }
+
+    cout << index + 1 << ". Merk: " << T.daftarLaptop[index].merk
+         << ", Tipe: " << T.daftarLaptop[index].tipe
+         << ", Harga: Rp " << T.daftarLaptop[index].harga << "\n";
+
+    showLaptopRekursif(T, index + 1);
+}
+
+void deleteLaptopRekursif(Toko &T, const string &merk, const string &tipe, int index) {
+    if (index == T.jumlahLaptop) {
+        cout << "Laptop dengan merk " << merk << " dan tipe " << tipe << " tidak ditemukan.\n";
+        return;
+    }
+
+    if (T.daftarLaptop[index].merk == merk && T.daftarLaptop[index].tipe == tipe) {
+        for (int i = index; i < T.jumlahLaptop - 1; i++) {
+            T.daftarLaptop[i] = T.daftarLaptop[i + 1];
+        }
+        T.jumlahLaptop--;
+        cout << "Laptop " << merk << " " << tipe << " berhasil dihapus.\n";
+        return;
+    }
+
+    deleteLaptopRekursif(T, merk, tipe, index + 1);
+}
+#include <iostream>
+#include "rekursif.h"
+
+using namespace std;
+
+int main() {
+    Toko toko;
+    toko.nama = "Toko Laptop ABC";
+    toko.jumlahLaptop = 0; // Pastikan jumlahLaptop diinisialisasi
+
+    createLaptopRekursif(toko, "Acer", "Aspire_5", "7000000");
+    createLaptopRekursif(toko, "Acer", "Nitro_5", "12000000");
+    createLaptopRekursif(toko, "Asus", "ROG_Strix", "15000000");
+    createLaptopRekursif(toko, "HP", "Pavilion", "10000000");
+    createLaptopRekursif(toko, "Dell", "Inspiron", "8500000");
+
+    cout << "\nDaftar Laptop:\n";
+    showLaptopRekursif(toko);
+
+    string merk;
+    cout << "\nMasukkan merk laptop untuk membandingkan harga: ";
+    cin >> merk;
+    bandingHargaRekursif(toko, merk);
+
+    string merkBaru, tipeBaru, hargaBaru;
+    cout << "\nMenambahkan laptop baru:\n";
+    cout << "Masukkan merk: ";
+    cin >> merkBaru;
+    cout << "Masukkan tipe: ";
+    cin >> tipeBaru;
+    cout << "Masukkan harga: ";
+    cin >> hargaBaru;
+    createLaptopRekursif(toko, merkBaru, tipeBaru, hargaBaru);
+
+    cout << "\nDaftar Laptop:\n";
+    showLaptopRekursif(toko);
+
+    string merkHapus, tipeHapus;
+    cout << "\nMenghapus laptop:\n";
+    cout << "Masukkan merk: ";
+    cin >> merkHapus;
+    cout << "Masukkan tipe: ";
+    cin >> tipeHapus;
+    deleteLaptopRekursif(toko, merkHapus, tipeHapus);
+
+    cout << "\nDaftar Laptop:\n";
+    showLaptopRekursif(toko);
+
+    return 0;
+}
